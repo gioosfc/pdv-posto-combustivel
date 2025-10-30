@@ -78,8 +78,15 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        
+        <!-- Swagger (OpenAPI) -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.2.0</version>
+        </dependency>
     </dependencies>
-
+mv
     <build>
         <plugins>
             <!-- Garante compilação em release 17 e passa parâmetros (útil p/ reflection) -->

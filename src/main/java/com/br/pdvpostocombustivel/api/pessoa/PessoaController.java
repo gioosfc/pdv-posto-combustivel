@@ -8,6 +8,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/pessoas")
 public class PessoaController {
@@ -34,6 +36,13 @@ public class PessoaController {
         return service.getByCpfCnpj(cpfCnpj);
     }
 
+    // ✅ Novo endpoint compatível com o frontend
+    @GetMapping("/all")
+    public List<PessoaResponse> listAll() {
+        return service.listAll(); // retorna List<PessoaResponse>
+    }
+
+    // Endpoint paginado (mantido para uso futuro)
     @GetMapping
     public Page<PessoaResponse> list(@RequestParam(defaultValue = "0") int page,
                                      @RequestParam(defaultValue = "10") int size,
@@ -58,4 +67,5 @@ public class PessoaController {
         service.delete(id);
     }
 }
+
 
