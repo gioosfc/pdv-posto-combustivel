@@ -2,6 +2,7 @@ package com.br.pdvpostocombustivel.api.contato;
 
 import com.br.pdvpostocombustivel.api.contato.dto.ContatoRequest;
 import com.br.pdvpostocombustivel.api.contato.dto.ContatoResponse;
+import com.br.pdvpostocombustivel.domain.entity.Contato;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/contato")
+@RequestMapping("/api/v1/contato")
 public class ContatoController {
 
     private final ContatoService contatoService;
@@ -32,9 +33,9 @@ public class ContatoController {
     }
 
     @PostMapping
-    public ResponseEntity<ContatoResponse> saveContato(@RequestBody @Valid ContatoRequest contatoRequest) {
-        ContatoResponse savedContato = contatoService.saveContato(contatoRequest);
-        return new ResponseEntity<>(savedContato, HttpStatus.CREATED);
+    @ResponseStatus(HttpStatus.CREATED)
+    public ContatoResponse create(@RequestBody @Valid ContatoRequest req) {
+        return contatoService.create(req);
     }
 
     @PutMapping("/{id}")

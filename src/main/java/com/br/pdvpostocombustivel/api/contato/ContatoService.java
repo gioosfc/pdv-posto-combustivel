@@ -4,6 +4,7 @@ import com.br.pdvpostocombustivel.api.contato.dto.ContatoRequest;
 import com.br.pdvpostocombustivel.api.contato.dto.ContatoResponse;
 import com.br.pdvpostocombustivel.domain.entity.Contato;
 import com.br.pdvpostocombustivel.domain.repository.ContatoRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,13 +37,16 @@ public class ContatoService {
     }
 
     @Transactional
-    public ContatoResponse saveContato(ContatoRequest contatoRequest) {
+    public ContatoResponse create(@Valid ContatoRequest req) {
         Contato contato = new Contato();
-        contato.setNome(contatoRequest.nome());
-        contato.setEmail(contatoRequest.email());
-        contato.setTelefone(contatoRequest.telefone());
-        Contato savedContato = contatoRepository.save(contato);
-        return toResponse(savedContato);
+        contato.setNome(req.nome());
+        contato.setTelefone(req.telefone());
+        contato.setEmail(req.email());
+        contato.setEndereco(req.endereco());
+
+        contato = contatoRepository.save(contato);
+
+        return toResponse(contato);
     }
 
     @Transactional
@@ -53,9 +57,21 @@ public class ContatoService {
         contato.setNome(contatoRequest.nome());
         contato.setEmail(contatoRequest.email());
         contato.setTelefone(contatoRequest.telefone());
+        contato.setEndereco(contatoRequest.endereco());
 
-        Contato updatedContato = contatoRepository.save(contato);
-        return toResponse(updatedContato);
+        contato = contatoRepository.save(contato);
+
+        return toResponse(contato);
+    }
+
+    private ContatoResponse toResponse(Contato c) {
+        return new ContatoResponse(
+                c.getId(),
+                c.getNome(),
+                c.getTelefone(),
+                c.getEmail(),
+                c.getEndereco()
+        );
     }
 
     @Transactional
@@ -65,8 +81,5 @@ public class ContatoService {
         }
         contatoRepository.deleteById(id);
     }
-
-    private ContatoResponse toResponse(Contato contato) {
-        return new ContatoResponse(contato.getId(), contato.getNome(), contato.getEmail(), contato.getTelefone());
-    }
 }
+
