@@ -7,6 +7,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/custos")
 public class CustoController {
@@ -30,20 +32,21 @@ public class CustoController {
 
     @GetMapping
     public Page<CustoResponse> list(@RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "10") int size,
-                                     @RequestParam(defaultValue = "id") String sortBy,
-                                     @RequestParam(defaultValue = "ASC") Sort.Direction dir) {
+                                    @RequestParam(defaultValue = "10") int size,
+                                    @RequestParam(defaultValue = "id") String sortBy,
+                                    @RequestParam(defaultValue = "ASC") Sort.Direction dir) {
         return service.list(page, size, sortBy, dir);
+    }
+
+    // ✅ endpoint para o FRONT
+    @GetMapping("/all")
+    public List<CustoResponse> getAllSemPaginacao() {
+        return service.getAllSemPaginacao();
     }
 
     @PutMapping("/{id}")
     public CustoResponse update(@PathVariable Long id, @RequestBody CustoRequest req) {
         return service.update(id, req);
-    }
-
-    @PatchMapping("/{id}")
-    public CustoResponse patch(@PathVariable Long id, @RequestBody CustoRequest req) {
-        return service.patch(id, req);
     }
 
     @DeleteMapping("/{id}")

@@ -7,6 +7,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/estoques")
 public class EstoqueController {
@@ -28,27 +30,24 @@ public class EstoqueController {
         return service.getById(id);
     }
 
-    @GetMapping(params = "produtoId")
-    public EstoqueResponse getByProdutoId(@RequestParam Long produtoId) {
-        return service.getByProdutoId(produtoId);
+    // lista sem paginação (facilita Swing)
+    @GetMapping("/all")
+    public List<EstoqueResponse> listAll() {
+        return service.listAll();
     }
 
+    // lista paginada (se quiser usar futuramente)
     @GetMapping
     public Page<EstoqueResponse> list(@RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "10") int size,
-                                     @RequestParam(defaultValue = "id") String sortBy,
-                                     @RequestParam(defaultValue = "ASC") Sort.Direction dir) {
+                                      @RequestParam(defaultValue = "10") int size,
+                                      @RequestParam(defaultValue = "id") String sortBy,
+                                      @RequestParam(defaultValue = "ASC") Sort.Direction dir) {
         return service.list(page, size, sortBy, dir);
     }
 
     @PutMapping("/{id}")
     public EstoqueResponse update(@PathVariable Long id, @RequestBody EstoqueRequest req) {
         return service.update(id, req);
-    }
-
-    @PatchMapping("/{id}")
-    public EstoqueResponse patch(@PathVariable Long id, @RequestBody EstoqueRequest req) {
-        return service.patch(id, req);
     }
 
     @DeleteMapping("/{id}")

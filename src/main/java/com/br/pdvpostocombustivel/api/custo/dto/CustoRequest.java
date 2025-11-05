@@ -4,7 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record CustoRequest(
-    String descricao,
-    BigDecimal valor,
-    LocalDate data
+        Long produtoId,
+        String descricao,
+        BigDecimal valor,
+        LocalDate data
 ) {}

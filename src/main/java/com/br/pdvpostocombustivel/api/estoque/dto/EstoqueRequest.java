@@ -1,8 +1,9 @@
 package com.br.pdvpostocombustivel.api.estoque.dto;
 
+import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 public record EstoqueRequest(
-    Long produtoId,
-    BigDecimal quantidade
+        @NotNull Long produtoId,
+        @NotNull BigDecimal quantidade
 ) {}

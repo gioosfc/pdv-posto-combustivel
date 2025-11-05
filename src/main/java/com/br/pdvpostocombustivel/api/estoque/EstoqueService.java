@@ -6,12 +6,12 @@ import com.br.pdvpostocombustivel.domain.entity.Estoque;
 import com.br.pdvpostocombustivel.domain.entity.Produto;
 import com.br.pdvpostocombustivel.domain.repository.EstoqueRepository;
 import com.br.pdvpostocombustivel.domain.repository.ProdutoRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -29,12 +29,13 @@ public class EstoqueService {
         Produto produto = produtoRepository.findById(req.produtoId())
                 .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado. id=" + req.produtoId()));
 
+        // unicidade: um produto só pode ter um estoque
         estoqueRepository.findByProdutoId(req.produtoId()).ifPresent(e -> {
-            throw new IllegalArgumentException("Estoque para este produto já existe. id=" + e.getId());
+            throw new DataIntegrityViolationException("Já existe estoque para o produto id=" + req.produtoId());
         });
 
-        Estoque novoEstoque = new Estoque(produto, req.quantidade());
-        return toResponse(estoqueRepository.save(novoEstoque));
+        Estoque novo = new Estoque(produto, req.quantidade());
+        return toResponse(estoqueRepository.save(novo));
     }
 
     @Transactional(readOnly = true)
@@ -45,15 +46,13 @@ public class EstoqueService {
     }
 
     @Transactional(readOnly = true)
-    public EstoqueResponse getByProdutoId(Long produtoId) {
-        Estoque e = estoqueRepository.findByProdutoId(produtoId)
-                .orElseThrow(() -> new IllegalArgumentException("Estoque não encontrado para o produto. id=" + produtoId));
-        return toResponse(e);
+    public List<EstoqueResponse> listAll() {
+        return estoqueRepository.findAll().stream().map(this::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
-    public Page<EstoqueResponse> list(int page, int size, String sortBy, Sort.Direction direction) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+    public Page<EstoqueResponse> list(int page, int size, String sortBy, Sort.Direction dir) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(dir, sortBy));
         return estoqueRepository.findAll(pageable).map(this::toResponse);
     }
 
@@ -61,39 +60,17 @@ public class EstoqueService {
         Estoque e = estoqueRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Estoque não encontrado. id=" + id));
 
-        Produto produto = produtoRepository.findById(req.produtoId())
-                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado. id=" + req.produtoId()));
-
-        if(!e.getProduto().getId().equals(produto.getId())) {
-            estoqueRepository.findByProdutoId(req.produtoId()).ifPresent(existing -> {
-                throw new IllegalArgumentException("Estoque para este produto já existe. id=" + existing.getId());
+        if (!e.getProduto().getId().equals(req.produtoId())) {
+            // troca de produto → verificar unicidade
+            estoqueRepository.findByProdutoId(req.produtoId()).ifPresent(existente -> {
+                throw new DataIntegrityViolationException("Já existe estoque para o produto id=" + req.produtoId());
             });
-        }
-
-        e.setProduto(produto);
-        e.setQuantidade(req.quantidade());
-
-        return toResponse(estoqueRepository.save(e));
-    }
-
-    public EstoqueResponse patch(Long id, EstoqueRequest req) {
-        Estoque e = estoqueRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Estoque não encontrado. id=" + id));
-
-        if (req.produtoId() != null) {
-            if(!e.getProduto().getId().equals(req.produtoId())) {
-                estoqueRepository.findByProdutoId(req.produtoId()).ifPresent(existing -> {
-                    throw new IllegalArgumentException("Estoque para este produto já existe. id=" + existing.getId());
-                });
-                Produto produto = produtoRepository.findById(req.produtoId())
+            Produto novoProduto = produtoRepository.findById(req.produtoId())
                     .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado. id=" + req.produtoId()));
-                e.setProduto(produto);
-            }
-        }
-        if (req.quantidade() != null) {
-            e.setQuantidade(req.quantidade());
+            e.setProduto(novoProduto);
         }
 
+        e.setQuantidade(req.quantidade());
         return toResponse(estoqueRepository.save(e));
     }
 
@@ -107,8 +84,9 @@ public class EstoqueService {
     private EstoqueResponse toResponse(Estoque e) {
         return new EstoqueResponse(
                 e.getId(),
-                e.getProduto().getId(),
-                e.getProduto().getNome(),
+                e.getProduto() != null ? e.getProduto().getId() : null,
+                e.getProduto() != null ? e.getProduto().getNome() : null,
+                e.getProduto() != null ? e.getProduto().getReferencia() : null,
                 e.getQuantidade()
         );
     }

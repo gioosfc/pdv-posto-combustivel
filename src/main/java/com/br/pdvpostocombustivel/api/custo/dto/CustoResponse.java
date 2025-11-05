@@ -4,8 +4,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record CustoResponse(
-    Long id,
-    String descricao,
-    BigDecimal valor,
-    LocalDate data
+        Long id,
+        String descricao,
+        BigDecimal valor,
+        LocalDate data,
+        String produtoNome
 ) {}
+

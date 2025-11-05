@@ -4,6 +4,7 @@ import com.br.pdvpostocombustivel.api.produto.dto.ProdutoRequest;
 import com.br.pdvpostocombustivel.api.produto.dto.ProdutoResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +28,13 @@ public class ProdutoController {
     public ProdutoResponse get(@PathVariable Long id) {
         return service.getById(id);
     }
+
+    // em ProdutoController
+    @GetMapping("/all")
+    public java.util.List<com.br.pdvpostocombustivel.api.produto.dto.ProdutoResponse> listAllSemPaginacao() {
+        return service.getAllSemPaginacao();
+    }
+
 
     @GetMapping(params = "referencia")
     public ProdutoResponse getByReferencia(@RequestParam String referencia) {

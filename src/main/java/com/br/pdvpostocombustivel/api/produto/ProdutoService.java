@@ -12,6 +12,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 public class ProdutoService {
@@ -108,14 +110,21 @@ public class ProdutoService {
         );
     }
 
-    private ProdutoResponse toResponse(Produto p) {
+    private ProdutoResponse toResponse(Produto produto) {
         return new ProdutoResponse(
-                p.getId(),
-                p.getNome(),
-                p.getReferencia(),
-                p.getMarca(),
-                p.getCategoria(),
-                p.getFornecedor()
+                produto.getId(),
+                produto.getNome(),
+                produto.getReferencia(),
+                produto.getMarca(),
+                produto.getCategoria(),
+                produto.getFornecedor()
         );
+    }
+
+    public List<ProdutoResponse> getAllSemPaginacao() {
+        return repository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 }
