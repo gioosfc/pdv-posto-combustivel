@@ -1,73 +1,38 @@
 package com.br.pdvpostocombustivel.domain.entity;
 
 import jakarta.persistence.*;
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.Date;
 
 @Entity
 @Table(name = "custo")
 public class Custo {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String descricao;
-
-    private BigDecimal valor;
-
-    private LocalDate data;
+    private double imposto;
+    private double custoVariaveis;
+    private double margemLucro;
+    private double custoFixo;
+    private Date dataProcessamento;
 
     @ManyToOne
     @JoinColumn(name = "produto_id")
     private Produto produto;
 
-    // ---- CONSTRUTORES ----
+    public Long getId() { return id; }
+    public double getImposto() { return imposto; }
+    public double getCustoVariaveis() { return custoVariaveis; }
+    public double getMargemLucro() { return margemLucro; }
+    public double getCustoFixo() { return custoFixo; }
+    public Date getDataProcessamento() { return dataProcessamento; }
 
-    public Custo() {}
+    public Produto getProduto() { return produto; }
 
-    public Custo(String descricao, BigDecimal valor, LocalDate data, Produto produto) {
-        this.descricao = descricao;
-        this.valor = valor;
-        this.data = data;
-        this.produto = produto;
-    }
-
-    // ---- GETTERS E SETTERS ----
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
-    public BigDecimal getValor() {
-        return valor;
-    }
-
-    public void setValor(BigDecimal valor) {
-        this.valor = valor;
-    }
-
-    public LocalDate getData() {
-        return data;
-    }
-
-    public void setData(LocalDate data) {
-        this.data = data;
-    }
-
-    public Produto getProduto() {
-        return produto;
-    }
-
-    public void setProduto(Produto produto) {
-        this.produto = produto;
-    }
+    public void setImposto(double imposto) { this.imposto = imposto; }
+    public void setCustoVariaveis(double custoVariaveis) { this.custoVariaveis = custoVariaveis; }
+    public void setMargemLucro(double margemLucro) { this.margemLucro = margemLucro; }
+    public void setCustoFixo(double custoFixo) { this.custoFixo = custoFixo; }
+    public void setDataProcessamento(Date dataProcessamento) { this.dataProcessamento = dataProcessamento; }
+    public void setProduto(Produto produto) { this.produto = produto; }
 }

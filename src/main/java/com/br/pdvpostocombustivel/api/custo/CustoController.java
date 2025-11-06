@@ -2,15 +2,13 @@ package com.br.pdvpostocombustivel.api.custo;
 
 import com.br.pdvpostocombustivel.api.custo.dto.CustoRequest;
 import com.br.pdvpostocombustivel.api.custo.dto.CustoResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/custos")
+@CrossOrigin(origins = "*") // <- IMPORTANTE para liberar acesso ao frontend Swing
 public class CustoController {
 
     private final CustoService service;
@@ -19,39 +17,18 @@ public class CustoController {
         this.service = service;
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public CustoResponse create(@RequestBody CustoRequest req) {
-        return service.create(req);
-    }
-
-    @GetMapping("/{id}")
-    public CustoResponse get(@PathVariable Long id) {
-        return service.getById(id);
-    }
-
-    @GetMapping
-    public Page<CustoResponse> list(@RequestParam(defaultValue = "0") int page,
-                                    @RequestParam(defaultValue = "10") int size,
-                                    @RequestParam(defaultValue = "id") String sortBy,
-                                    @RequestParam(defaultValue = "ASC") Sort.Direction dir) {
-        return service.list(page, size, sortBy, dir);
-    }
-
-    // ✅ endpoint para o FRONT
     @GetMapping("/all")
     public List<CustoResponse> getAllSemPaginacao() {
         return service.getAllSemPaginacao();
     }
 
-    @PutMapping("/{id}")
-    public CustoResponse update(@PathVariable Long id, @RequestBody CustoRequest req) {
-        return service.update(id, req);
+    @PostMapping
+    public CustoResponse salvar(@RequestBody CustoRequest req) {
+        return CustoResponse.fromEntity(service.createOrUpdate(req));
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
+    public void deletar(@PathVariable Long id) {
         service.delete(id);
     }
 }

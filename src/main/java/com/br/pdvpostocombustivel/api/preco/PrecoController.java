@@ -2,9 +2,6 @@ package com.br.pdvpostocombustivel.api.preco;
 
 import com.br.pdvpostocombustivel.api.preco.dto.PrecoRequest;
 import com.br.pdvpostocombustivel.api.preco.dto.PrecoResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,38 +16,18 @@ public class PrecoController {
         this.service = service;
     }
 
+    @GetMapping("/all")
+    public List<PrecoResponse> getAllSemPaginacao() {
+        return service.getAllSemPaginacao();
+    }
+
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public PrecoResponse create(@RequestBody PrecoRequest req) {
-        return service.create(req);
-    }
-
-    @GetMapping("/{id}")
-    public PrecoResponse get(@PathVariable Long id) {
-        return service.getById(id);
-    }
-
-    @GetMapping(params = "produtoId")
-    public List<PrecoResponse> getByProdutoId(@RequestParam Long produtoId) {
-        return service.getByProdutoId(produtoId);
-    }
-
-    @GetMapping
-    public Page<PrecoResponse> list(@RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "10") int size,
-                                     @RequestParam(defaultValue = "id") String sortBy,
-                                     @RequestParam(defaultValue = "ASC") Sort.Direction dir) {
-        return service.list(page, size, sortBy, dir);
-    }
-
-    @PutMapping("/{id}")
-    public PrecoResponse update(@PathVariable Long id, @RequestBody PrecoRequest req) {
-        return service.update(id, req);
+    public PrecoResponse salvar(@RequestBody PrecoRequest req) {
+        return PrecoResponse.fromEntity(service.createOrUpdate(req));
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
+    public void deletar(@PathVariable Long id) {
         service.delete(id);
     }
 }

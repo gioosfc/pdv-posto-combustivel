@@ -1,8 +1,13 @@
 package com.br.pdvpostocombustivel.api.preco.dto;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
-public record PrecoRequest(
-    Long produtoId,
-    BigDecimal valor
-) {}
+public class PrecoRequest {
+
+    private Long produtoId;
+    private BigDecimal valor;
+
+    public Long getProdutoId() { return produtoId; }
+    public BigDecimal getValor() { return valor; }
+}

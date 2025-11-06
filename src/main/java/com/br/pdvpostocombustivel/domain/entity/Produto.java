@@ -1,8 +1,11 @@
 package com.br.pdvpostocombustivel.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.util.List;
+
 
 @Entity
 @Table(
@@ -38,6 +41,12 @@ public class Produto {
     @Size(max = 100)
     @Column(length = 100)
     private String fornecedor;
+
+    @OneToMany(mappedBy = "produto")
+    @JsonIgnore
+    private List<Custo> custos;
+
+
 
     /** Construtor JPA */
     public Produto() {}
