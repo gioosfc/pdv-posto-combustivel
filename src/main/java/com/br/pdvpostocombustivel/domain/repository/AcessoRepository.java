@@ -11,3 +11,4 @@ public interface AcessoRepository extends JpaRepository<Acesso, Long> {
 
     Optional<Acesso> findByUsuarioAndSenha(String usuario, String senha);
 }
+

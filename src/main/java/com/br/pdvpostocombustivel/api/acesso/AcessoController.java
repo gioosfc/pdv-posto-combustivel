@@ -9,44 +9,30 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/acesso")
+@RequestMapping("/api/v1/acessos")
 public class AcessoController {
 
-    private final AcessoService acessoService;
+    private final AcessoService service;
 
-    @Autowired
-    public AcessoController(AcessoService acessoService) {
-        this.acessoService = acessoService;
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<AcessoResponse> login(@RequestBody AcessoRequest request) {
-        return ResponseEntity.ok(acessoService.login(request));
-    }
-
-    @GetMapping("/all")
-    public ResponseEntity<List<AcessoResponse>> listar() {
-        return ResponseEntity.ok(acessoService.listar());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<AcessoResponse> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(acessoService.buscarPorId(id));
+    public AcessoController(AcessoService service) {
+        this.service = service;
     }
 
     @PostMapping
-    public ResponseEntity<AcessoResponse> salvar(@RequestBody AcessoRequest request) {
-        return ResponseEntity.ok(acessoService.salvar(request));
+    public AcessoResponse salvar(@RequestBody AcessoRequest request) {
+        return service.salvar(request);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<AcessoResponse> atualizar(@PathVariable Long id, @RequestBody AcessoRequest request) {
-        return ResponseEntity.ok(acessoService.atualizar(id, request));
+    @PostMapping("/login")
+    public AcessoResponse login(@RequestBody AcessoRequest request) {
+        return service.login(request);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        acessoService.deletar(id);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/all")
+    public List<AcessoResponse> listar() {
+        return service.listar();
     }
+
+    // outros endpoints...
 }
+
