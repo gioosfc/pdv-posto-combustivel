@@ -23,17 +23,14 @@ public class AcessoService {
         Acesso acesso = repository.findByUsuarioAndSenha(request.usuario(), request.senha())
                 .orElseThrow(() -> new RuntimeException("Credenciais inválidas"));
 
-        // Token fictício (iremos trocar por JWT depois)
-        String token = "token-" + acesso.getUsuario();
-
-        return new AcessoResponse(acesso.getId(), acesso.getUsuario(), acesso.getSenha());
+        return new AcessoResponse(acesso.getId(), acesso.getUsuario(), acesso.getPapel(), acesso.getSenha());
     }
 
     // LISTAR TODOS
     public List<AcessoResponse> listar() {
         return repository.findAll()
                 .stream()
-                .map(a -> new AcessoResponse(a.getId(), a.getUsuario(), a.getSenha()))
+                .map(a -> new AcessoResponse(a.getId(), a.getUsuario(), a.getPapel(), a.getSenha()))
                 .toList();
     }
 
@@ -42,7 +39,7 @@ public class AcessoService {
         Acesso acesso = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Acesso não encontrado"));
 
-        return new AcessoResponse(acesso.getId(), acesso.getUsuario(), acesso.getSenha());
+        return new AcessoResponse(acesso.getId(), acesso.getUsuario(), acesso.getPapel(), acesso.getSenha());
     }
 
     // SALVAR
@@ -54,10 +51,11 @@ public class AcessoService {
         Acesso acesso = new Acesso();
         acesso.setUsuario(request.usuario());
         acesso.setSenha(request.senha());
+        acesso.setPapel(request.papel());
 
         Acesso saved = repository.save(acesso);
 
-        return new AcessoResponse(saved.getId(), saved.getUsuario(), saved.getSenha());
+        return new AcessoResponse(saved.getId(), saved.getUsuario(), saved.getPapel(), saved.getSenha());
     }
 
     // ATUALIZAR
@@ -67,10 +65,11 @@ public class AcessoService {
 
         acesso.setUsuario(request.usuario());
         acesso.setSenha(request.senha());
+        acesso.setPapel(request.papel());
 
         Acesso updated = repository.save(acesso);
 
-        return new AcessoResponse(updated.getId(), updated.getUsuario(), updated.getSenha());
+        return new AcessoResponse(updated.getId(), updated.getUsuario(), updated.getPapel(), updated.getSenha());
     }
 
     // DELETAR
