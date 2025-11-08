@@ -4,6 +4,7 @@ import com.br.pdvpostocombustivel.api.custo.dto.CustoRequest;
 import com.br.pdvpostocombustivel.api.custo.dto.CustoResponse;
 import com.br.pdvpostocombustivel.domain.entity.Custo;
 import com.br.pdvpostocombustivel.domain.entity.Produto;
+import com.br.pdvpostocombustivel.domain.repository.CustoRepository;
 import com.br.pdvpostocombustivel.domain.repository.ProdutoRepository;
 import org.springframework.stereotype.Service;
 import java.util.Date;

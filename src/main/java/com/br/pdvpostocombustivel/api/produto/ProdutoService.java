@@ -24,12 +24,14 @@ public class ProdutoService {
         this.repository = repository;
     }
 
+    // ✅ Criação de produto
     public ProdutoResponse create(ProdutoRequest req) {
         validarUnicidadeReferencia(req.referencia(), null);
         Produto novoProduto = toEntity(req);
         return toResponse(repository.save(novoProduto));
     }
 
+    // ✅ Buscar por ID
     @Transactional(readOnly = true)
     public ProdutoResponse getById(Long id) {
         Produto p = repository.findById(id)
@@ -37,6 +39,7 @@ public class ProdutoService {
         return toResponse(p);
     }
 
+    // ✅ Buscar por referência
     @Transactional(readOnly = true)
     public ProdutoResponse getByReferencia(String referencia) {
         Produto p = repository.findByReferencia(referencia)
@@ -44,12 +47,14 @@ public class ProdutoService {
         return toResponse(p);
     }
 
+    // ✅ Listar paginado
     @Transactional(readOnly = true)
     public Page<ProdutoResponse> list(int page, int size, String sortBy, Sort.Direction direction) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         return repository.findAll(pageable).map(this::toResponse);
     }
 
+    // ✅ Atualizar produto
     public ProdutoResponse update(Long id, ProdutoRequest req) {
         Produto p = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado. id=" + id));
@@ -67,6 +72,7 @@ public class ProdutoService {
         return toResponse(repository.save(p));
     }
 
+    // ✅ Atualização parcial
     public ProdutoResponse patch(Long id, ProdutoRequest req) {
         Produto p = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado. id=" + id));
@@ -85,6 +91,7 @@ public class ProdutoService {
         return toResponse(repository.save(p));
     }
 
+    // ✅ Deletar produto
     public void delete(Long id) {
         if (!repository.existsById(id)) {
             throw new IllegalArgumentException("Produto não encontrado. id=" + id);
@@ -92,6 +99,7 @@ public class ProdutoService {
         repository.deleteById(id);
     }
 
+    // ✅ Validar unicidade da referência
     private void validarUnicidadeReferencia(String referencia, Long idAtual) {
         repository.findByReferencia(referencia).ifPresent(existente -> {
             if (idAtual == null || !existente.getId().equals(idAtual)) {
@@ -100,6 +108,7 @@ public class ProdutoService {
         });
     }
 
+    // ✅ Converter request em entidade
     private Produto toEntity(ProdutoRequest req) {
         return new Produto(
                 req.nome(),
@@ -110,21 +119,17 @@ public class ProdutoService {
         );
     }
 
+    // ✅ Converter entidade em DTO (incluindo preço e custo)
     private ProdutoResponse toResponse(Produto produto) {
-        return new ProdutoResponse(
-                produto.getId(),
-                produto.getNome(),
-                produto.getReferencia(),
-                produto.getMarca(),
-                produto.getCategoria(),
-                produto.getFornecedor()
-        );
+        return ProdutoResponse.fromEntity(produto);
     }
 
+    // ✅ Retornar todos os produtos (sem paginação)
+    @Transactional(readOnly = true)
     public List<ProdutoResponse> getAllSemPaginacao() {
         return repository.findAll()
                 .stream()
-                .map(this::toResponse)
+                .map(ProdutoResponse::fromEntity)
                 .toList();
     }
 }

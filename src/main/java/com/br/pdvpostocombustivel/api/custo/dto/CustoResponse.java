@@ -1,16 +1,18 @@
 package com.br.pdvpostocombustivel.api.custo.dto;
 
 import com.br.pdvpostocombustivel.domain.entity.Custo;
+
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class CustoResponse {
 
     private Long id;
     private Long produtoId;
-    private double imposto;
-    private double custoVariaveis;
-    private double margemLucro;
-    private double custoFixo;
+    private BigDecimal imposto;
+    private BigDecimal custoVariaveis;
+    private BigDecimal margemLucro;
+    private BigDecimal custoFixo;
     private Date dataProcessamento;
     private String nomeProduto;
 
@@ -36,9 +38,9 @@ public class CustoResponse {
     public Long getId() { return id; }
     public Long getProdutoId() { return produtoId; }
     public String getNomeProduto() { return nomeProduto; }
-    public double getImposto() { return imposto; }
-    public double getCustoVariaveis() { return custoVariaveis; }
-    public double getMargemLucro() { return margemLucro; }
-    public double getCustoFixo() { return custoFixo; }
+    public BigDecimal getImposto() { return imposto; }
+    public BigDecimal getCustoVariaveis() { return custoVariaveis; }
+    public BigDecimal getMargemLucro() { return margemLucro; }
+    public BigDecimal getCustoFixo() { return custoFixo; }
     public Date getDataProcessamento() { return dataProcessamento; }
 }

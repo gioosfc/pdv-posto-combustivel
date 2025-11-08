@@ -1,4 +1,4 @@
-package com.br.pdvpostocombustivel.api.preco;
+package com.br.pdvpostocombustivel.domain.repository;
 
 import com.br.pdvpostocombustivel.domain.entity.Preco;
 import org.springframework.data.jpa.repository.JpaRepository;

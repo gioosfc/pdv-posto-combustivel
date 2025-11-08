@@ -1,4 +1,4 @@
-package com.br.pdvpostocombustivel.api.custo;
+package com.br.pdvpostocombustivel.domain.repository;
 
 import com.br.pdvpostocombustivel.domain.entity.Custo;
 import org.springframework.data.jpa.repository.JpaRepository;

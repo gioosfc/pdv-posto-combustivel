@@ -23,14 +23,14 @@ public class AcessoService {
         Acesso acesso = repository.findByUsuarioAndSenha(request.usuario(), request.senha())
                 .orElseThrow(() -> new RuntimeException("Credenciais inválidas"));
 
-        return new AcessoResponse(acesso.getId(), acesso.getUsuario(), acesso.getPapel(), acesso.getSenha());
+        return new AcessoResponse(acesso.getId(), acesso.getUsuario(), acesso.getSenha(), acesso.getPapel());
     }
 
     // LISTAR TODOS
     public List<AcessoResponse> listar() {
         return repository.findAll()
                 .stream()
-                .map(a -> new AcessoResponse(a.getId(), a.getUsuario(), a.getPapel(), a.getSenha()))
+                .map(a -> new AcessoResponse(a.getId(), a.getUsuario(), a.getSenha(), a.getPapel()))
                 .toList();
     }
 
@@ -39,7 +39,7 @@ public class AcessoService {
         Acesso acesso = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Acesso não encontrado"));
 
-        return new AcessoResponse(acesso.getId(), acesso.getUsuario(), acesso.getPapel(), acesso.getSenha());
+        return new AcessoResponse(acesso.getId(), acesso.getUsuario(), acesso.getSenha(), acesso.getPapel());
     }
 
     // SALVAR
@@ -55,7 +55,7 @@ public class AcessoService {
 
         Acesso saved = repository.save(acesso);
 
-        return new AcessoResponse(saved.getId(), saved.getUsuario(), saved.getPapel(), saved.getSenha());
+        return new AcessoResponse(saved.getId(), saved.getUsuario(), saved.getSenha(), saved.getPapel());
     }
 
     // ATUALIZAR
@@ -69,7 +69,7 @@ public class AcessoService {
 
         Acesso updated = repository.save(acesso);
 
-        return new AcessoResponse(updated.getId(), updated.getUsuario(), updated.getPapel(), updated.getSenha());
+        return new AcessoResponse(updated.getId(), updated.getUsuario(), updated.getSenha(), updated.getPapel());
     }
 
     // DELETAR

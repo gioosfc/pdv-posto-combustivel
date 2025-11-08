@@ -1,38 +1,93 @@
 package com.br.pdvpostocombustivel.domain.entity;
 
 import jakarta.persistence.*;
+import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
 @Table(name = "custo")
-public class Custo {
+public class Custo implements Serializable {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private double imposto;
-    private double custoVariaveis;
-    private double margemLucro;
-    private double custoFixo;
-    private Date dataProcessamento;
-
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "produto_id")
     private Produto produto;
 
-    public Long getId() { return id; }
-    public double getImposto() { return imposto; }
-    public double getCustoVariaveis() { return custoVariaveis; }
-    public double getMargemLucro() { return margemLucro; }
-    public double getCustoFixo() { return custoFixo; }
-    public Date getDataProcessamento() { return dataProcessamento; }
+    private BigDecimal imposto;
+    private BigDecimal custoVariaveis;
+    private BigDecimal margemLucro;
+    private BigDecimal custoFixo;
 
-    public Produto getProduto() { return produto; }
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dataProcessamento;
 
-    public void setImposto(double imposto) { this.imposto = imposto; }
-    public void setCustoVariaveis(double custoVariaveis) { this.custoVariaveis = custoVariaveis; }
-    public void setMargemLucro(double margemLucro) { this.margemLucro = margemLucro; }
-    public void setCustoFixo(double custoFixo) { this.custoFixo = custoFixo; }
-    public void setDataProcessamento(Date dataProcessamento) { this.dataProcessamento = dataProcessamento; }
-    public void setProduto(Produto produto) { this.produto = produto; }
+    public Custo() {}
+
+    // ✅ Construtor opcional
+    public Custo(Produto produto, BigDecimal imposto, BigDecimal custoVariaveis,
+                 BigDecimal margemLucro, BigDecimal custoFixo, Date dataProcessamento) {
+        this.produto = produto;
+        this.imposto = imposto;
+        this.custoVariaveis = custoVariaveis;
+        this.margemLucro = margemLucro;
+        this.custoFixo = custoFixo;
+        this.dataProcessamento = dataProcessamento;
+    }
+
+    // ✅ Getters e Setters
+    public Long getId() {
+        return id;
+    }
+
+    public Produto getProduto() {
+        return produto;
+    }
+
+    public void setProduto(Produto produto) {
+        this.produto = produto;
+    }
+
+    public BigDecimal getImposto() {
+        return imposto;
+    }
+
+    public void setImposto(BigDecimal imposto) {
+        this.imposto = imposto;
+    }
+
+    public BigDecimal getCustoVariaveis() {
+        return custoVariaveis;
+    }
+
+    public void setCustoVariaveis(BigDecimal custoVariaveis) {
+        this.custoVariaveis = custoVariaveis;
+    }
+
+    public BigDecimal getMargemLucro() {
+        return margemLucro;
+    }
+
+    public void setMargemLucro(BigDecimal margemLucro) {
+        this.margemLucro = margemLucro;
+    }
+
+    public BigDecimal getCustoFixo() {
+        return custoFixo;
+    }
+
+    public void setCustoFixo(BigDecimal custoFixo) {
+        this.custoFixo = custoFixo;
+    }
+
+    public Date getDataProcessamento() {
+        return dataProcessamento;
+    }
+
+    public void setDataProcessamento(Date dataProcessamento) {
+        this.dataProcessamento = dataProcessamento;
+    }
 }
