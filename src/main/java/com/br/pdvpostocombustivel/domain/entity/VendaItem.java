@@ -1,5 +1,6 @@
 package com.br.pdvpostocombustivel.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
@@ -14,21 +15,22 @@ public class VendaItem {
     private Long bombaId;
     private String bombaNome;
 
-    @ManyToOne
-    @JoinColumn(name = "produto_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "produto_id", nullable = false)
     private Produto produto;
 
-    @ManyToOne
-    @JoinColumn(name = "venda_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "venda_id", nullable = false)
+    @JsonBackReference
     private Venda venda;
 
-    @Column(precision = 10, scale = 2)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal quantidade; // litros
 
-    @Column(precision = 10, scale = 2)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal precoUnitario;
 
-    @Column(precision = 10, scale = 2)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
 
     public Long getId() { return id; }

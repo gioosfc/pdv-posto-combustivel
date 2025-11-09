@@ -1,5 +1,6 @@
 package com.br.pdvpostocombustivel.api.produto.dto;
 
+import com.br.pdvpostocombustivel.domain.entity.Preco;
 import com.br.pdvpostocombustivel.domain.entity.Produto;
 import java.math.BigDecimal;
 
@@ -21,8 +22,9 @@ public record ProdutoResponse(
                 p.getMarca(),
                 p.getCategoria(),
                 p.getFornecedor(), // ✅ já é uma String
-                p.getCusto() != null ? p.getCusto().getCustoFixo() : null,
-                p.getPreco() != null ? p.getPreco().getValor() : null
+                null,
+                /*p.getPrecoAtual() != null ? p.getCusto().getCustoFixo() : null,*/
+                p.getPrecoAtual() != null ? p.getPrecoAtual() : null
         );
     }
 }

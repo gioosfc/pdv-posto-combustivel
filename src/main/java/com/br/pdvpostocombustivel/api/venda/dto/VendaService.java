@@ -1,14 +1,8 @@
-package com.br.pdvpostocombustivel.api.venda.service;
+package com.br.pdvpostocombustivel.api.venda.dto;
 
 import com.br.pdvpostocombustivel.api.venda.dto.VendaRequest;
-import com.br.pdvpostocombustivel.domain.entity.Preco;
-import com.br.pdvpostocombustivel.domain.entity.Produto;
-import com.br.pdvpostocombustivel.domain.entity.Venda;
-import com.br.pdvpostocombustivel.domain.entity.VendaItem;
-import com.br.pdvpostocombustivel.domain.repository.PrecoRepository;
-import com.br.pdvpostocombustivel.domain.repository.ProdutoRepository;
-import com.br.pdvpostocombustivel.domain.repository.VendaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.br.pdvpostocombustivel.domain.entity.*;
+import com.br.pdvpostocombustivel.domain.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -19,47 +13,41 @@ import java.util.List;
 @Service
 public class VendaService {
 
-    @Autowired
-    private VendaRepository vendaRepository;
+    private final VendaRepository vendaRepository;
+    private final ProdutoRepository produtoRepository;
+    private final PrecoRepository precoRepository;
 
-    @Autowired
-    private ProdutoRepository produtoRepository;
+    public VendaService(VendaRepository vendaRepository,
+                        ProdutoRepository produtoRepository,
+                        PrecoRepository precoRepository) {
+        this.vendaRepository = vendaRepository;
+        this.produtoRepository = produtoRepository;
+        this.precoRepository = precoRepository;
+    }
 
-    @Autowired
-    private PrecoRepository precoRepository;
-
+    /** ✅ Cria uma nova venda com base no request */
     public Venda criarVenda(VendaRequest request) {
         if (request == null || request.getItens() == null || request.getItens().isEmpty()) {
             throw new IllegalArgumentException("A venda deve conter ao menos um item.");
         }
 
         Venda venda = new Venda();
-        venda.setDataVenda(new Date());
+        venda.setDataHora(new Date());
         venda.setItens(new ArrayList<>());
 
         BigDecimal totalGeral = BigDecimal.ZERO;
 
         for (VendaRequest.Item itemReq : request.getItens()) {
-
             Produto produto = produtoRepository.findById(itemReq.getProdutoId())
                     .orElseThrow(() -> new RuntimeException("Produto não encontrado: " + itemReq.getProdutoId()));
 
             Preco preco = precoRepository.findTopByProdutoIdOrderByDataAlteracaoDesc(produto.getId());
-
-            // ✅ Validação de preço
             if (preco == null || preco.getValor() == null) {
                 throw new RuntimeException("Preço inválido ou não encontrado para o produto: " + produto.getNome());
             }
 
             BigDecimal precoUnitario = preco.getValor();
             BigDecimal quantidade = itemReq.getQuantidade();
-
-            // ✅ Validação de quantidade
-            if (quantidade == null) {
-                throw new RuntimeException("Quantidade não informada para o produto: " + produto.getNome());
-            }
-
-            // ✅ Calcula subtotal com segurança
             BigDecimal subtotal = precoUnitario.multiply(quantidade);
 
             VendaItem item = new VendaItem();
@@ -77,12 +65,20 @@ public class VendaService {
         return vendaRepository.save(venda);
     }
 
-    public List<Venda> listarVendas() {
-        return vendaRepository.findAll();
-    }
-
+    /** ✅ Busca uma venda por ID */
     public Venda buscarPorId(Long id) {
         return vendaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Venda não encontrada"));
+                .orElseThrow(() -> new RuntimeException("Venda não encontrada com ID: " + id));
+    }
+
+    public Venda buscarPorIdComItens(Long id) {
+        // Chame o novo método que força o FETCH
+        return vendaRepository.findByIdComItens(id)
+                .orElseThrow(() -> new RuntimeException("Venda não encontrada com ID: " + id));
+    }
+
+    /** ✅ Lista todas as vendas registradas */
+    public List<Venda> listarVendas() {
+        return vendaRepository.findAll();
     }
 }

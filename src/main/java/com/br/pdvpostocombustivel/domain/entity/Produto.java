@@ -1,7 +1,12 @@
 package com.br.pdvpostocombustivel.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "produto")
@@ -21,15 +26,8 @@ public class Produto implements Serializable {
 
     private String fornecedor;
 
-    // ✅ Cada produto tem um custo (valor de compra)
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "custo_id")
-    private Custo custo;
-
-    // ✅ Cada produto tem um preço de venda
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "preco_id")
-    private Preco preco;
+    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Preco> precos = new ArrayList<>();
 
     public Produto() {}
 
@@ -90,19 +88,15 @@ public class Produto implements Serializable {
         this.fornecedor = fornecedor;
     }
 
-    public Custo getCusto() {
-        return custo;
+    @Transient
+    @JsonIgnore
+    public BigDecimal getPrecoAtual() {
+        return precos.isEmpty() ? null : precos.get(0).getValor();
     }
 
-    public void setCusto(Custo custo) {
-        this.custo = custo;
-    }
-
-    public Preco getPreco() {
-        return preco;
-    }
-
-    public void setPreco(Preco preco) {
-        this.preco = preco;
+    // helper
+    public void addPreco(Preco preco) {
+        preco.setProduto(this);
+        this.precos.add(preco);
     }
 }

@@ -1,5 +1,6 @@
 package com.br.pdvpostocombustivel.api.venda.dto;
 
+import com.br.pdvpostocombustivel.api.venda.dto.VendaService;
 import com.br.pdvpostocombustivel.domain.entity.Venda;
 import com.br.pdvpostocombustivel.domain.entity.VendaItem;
 import com.lowagie.text.*;
@@ -24,7 +25,7 @@ public class VendaPdfService {
 
     public byte[] gerarPdf(Long vendaId) {
         // ✅ Corrigido: método correto do service
-        Venda v = vendaService.buscarOuThrow(vendaId);
+        Venda v = vendaService.buscarPorId(vendaId);
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Document doc = new Document(PageSize.A4);

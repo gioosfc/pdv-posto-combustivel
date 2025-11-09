@@ -1,13 +1,17 @@
-package com.br.pdvpostocombustivel.api.venda.dto;
+package com.br.pdvpostocombustivel.api.venda;
 
+import com.br.pdvpostocombustivel.api.venda.dto.VendaRequest;
+import com.br.pdvpostocombustivel.api.venda.dto.VendaService;
 import com.br.pdvpostocombustivel.domain.entity.Venda;
 import com.br.pdvpostocombustivel.domain.repository.VendaRepository;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -17,47 +21,62 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.*;
-
-/**
- * Controlador REST para vendas e geração de comprovantes em PDF
- */
 @RestController
 @RequestMapping("/api/v1/vendas")
 @CrossOrigin(origins = "*")
 public class VendaController {
 
-    @Autowired
-    private VendaService vendaService;
+    private final VendaService vendaService;
+    private final VendaRepository vendaRepository;
 
-    @Autowired
-    private VendaRepository vendaRepository;
+    public VendaController(VendaService vendaService, VendaRepository vendaRepository) {
+        this.vendaService = vendaService;
+        this.vendaRepository = vendaRepository;
+    }
 
-    /** Criar nova venda */
+    /** ✅ Criar nova venda */
     @PostMapping
     @Transactional
-    public ResponseEntity<Venda> criarVenda(@RequestBody Venda venda) {
-        Venda criada = vendaService.criarVenda(venda);
-        return ResponseEntity.ok(criada);
+    public ResponseEntity<Venda> criarVenda(@RequestBody VendaRequest vendaRequest) {
+        try {
+            Venda criada = vendaService.criarVenda(vendaRequest);
+            return ResponseEntity.ok(criada);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(null);
+        }
     }
 
-    /** Listar todas as vendas */
+    /** ✅ Listar todas as vendas */
     @GetMapping
     public ResponseEntity<List<Venda>> listarVendas() {
-        return ResponseEntity.ok(vendaService.listarTodas());
+        try {
+            return ResponseEntity.ok(vendaService.listarVendas());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
-    /** Buscar venda por ID */
+    /** ✅ Buscar venda por ID */
     @GetMapping("/{id}")
     public ResponseEntity<Venda> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(vendaService.buscarOuThrow(id)); // ✅ corrigido
+        try {
+            Venda venda = vendaService.buscarPorId(id);
+            if (venda == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(venda);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
-    /** Gerar comprovante PDF da venda */
+    /** ✅ Gerar comprovante PDF */
     @GetMapping(value = "/{id}/comprovante", produces = MediaType.APPLICATION_PDF_VALUE)
     public void gerarComprovante(@PathVariable Long id, HttpServletResponse response) throws IOException {
-        Venda venda = vendaService.buscarOuThrow(id);
+        Venda venda = vendaService.buscarPorIdComItens(id);
         if (venda == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "Venda não encontrada");
             return;
@@ -74,7 +93,7 @@ public class VendaController {
         }
     }
 
-    /** Método utilitário para gerar PDF */
+    /** ✅ Método utilitário para gerar PDF */
     private void gerarPdfComprovante(Venda venda, OutputStream out) throws Exception {
         Document doc = new Document(PageSize.A4);
         PdfWriter.getInstance(doc, out);
@@ -88,17 +107,12 @@ public class VendaController {
         titulo.setAlignment(Element.ALIGN_CENTER);
         doc.add(titulo);
         doc.add(new Paragraph("Data: " + LocalDateTime.now(), normalFont));
-        doc.add(new Paragraph("Operador: " +
-                (venda.getAcesso() != null && venda.getAcesso().getUsuario() != null
-                        ? venda.getAcesso().getUsuario()
-                        : "N/A"), normalFont));
         doc.add(new Paragraph("Forma de Pagamento: " + venda.getFormaPagamento(), normalFont));
         if (venda.getPlaca() != null && !venda.getPlaca().isBlank()) {
             doc.add(new Paragraph("Placa: " + venda.getPlaca(), normalFont));
         }
         doc.add(new Paragraph("\n"));
 
-        // Tabela com itens
         PdfPTable table = new PdfPTable(4);
         table.setWidthPercentage(100);
         table.setWidths(new float[]{1, 3, 2, 2});
@@ -110,10 +124,14 @@ public class VendaController {
         NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
         venda.getItens().forEach(item -> {
-            table.addCell(celula(String.valueOf(item.getBombaId()), normalFont));
-            table.addCell(celula(item.getProduto().getNome(), normalFont));
-            table.addCell(celula(item.getQuantidade().setScale(2, RoundingMode.HALF_UP).toString() + " L", normalFont));
-            table.addCell(celula(nf.format(item.getSubtotal()), normalFont));
+            table.addCell(celula(
+                    item.getBombaId() != null ? String.valueOf(item.getBombaId()) : "-", normalFont));
+            table.addCell(celula(
+                    item.getProduto() != null ? item.getProduto().getNome() : "-", normalFont));
+            table.addCell(celula(
+                    item.getQuantidade() != null ? item.getQuantidade().setScale(2, RoundingMode.HALF_UP) + " L" : "-", normalFont));
+            table.addCell(celula(
+                    item.getSubtotal() != null ? nf.format(item.getSubtotal()) : "-", normalFont));
         });
 
         doc.add(table);
@@ -123,6 +141,7 @@ public class VendaController {
         doc.close();
     }
 
+    /** ✅ Cabeçalho do PDF */
     private PdfPCell cabecalho(String texto) {
         Font font = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
         PdfPCell cell = new PdfPCell(new Phrase(texto, font));
@@ -132,6 +151,7 @@ public class VendaController {
         return cell;
     }
 
+    /** ✅ Célula do PDF */
     private PdfPCell celula(String texto, Font font) {
         PdfPCell cell = new PdfPCell(new Phrase(texto, font));
         cell.setPadding(6);

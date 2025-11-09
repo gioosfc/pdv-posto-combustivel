@@ -8,6 +8,8 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.*;
+
 @RestController
 @RequestMapping("/api/v1/produtos")
 public class ProdutoController {
@@ -62,6 +64,13 @@ public class ProdutoController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
-        service.delete(id);
+
+        try {
+            service.delete(id);
+        } catch (Exception e) {
+            var a = e;
+        }
+
+
     }
 }

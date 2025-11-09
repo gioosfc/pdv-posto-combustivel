@@ -1,6 +1,9 @@
 package com.br.pdvpostocombustivel.domain.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -14,6 +17,7 @@ public class Estoque implements Serializable {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "produto_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Produto produto;
 
     @Column(nullable = false)

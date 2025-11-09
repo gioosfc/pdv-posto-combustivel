@@ -1,7 +1,9 @@
 package com.br.pdvpostocombustivel.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -15,94 +17,57 @@ public class Venda {
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
-    private Date dataHora = new Date(); // data e hora da venda
+    private Date dataHora = new Date();
 
     @Column(length = 10)
-    private String placa; // opcional, placa do veículo
+    private String placa;
 
     @Column(length = 20)
-    private String formaPagamento; // DINHEIRO, PIX, CARTAO etc.
+    private String formaPagamento;
 
-    @Column(precision = 10, scale = 2)
-    private BigDecimal total;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal total = BigDecimal.ZERO;
 
-    // 🔗 Relacionamento com o operador (usuário logado)
-    @ManyToOne
+    @ManyToOne(optional = true)
     @JoinColumn(name = "acesso_id")
     private Acesso acesso;
 
-    // 🔗 Itens da venda
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<VendaItem> itens;
+    @JsonManagedReference
+    private List<VendaItem> itens = new ArrayList<>();
 
     // ===========================
     // === Getters e Setters ===
     // ===========================
 
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Date getDataHora() { return dataHora; }
+    public void setDataHora(Date dataHora) { this.dataHora = dataHora; }
 
-    public Date getDataHora() {
-        return dataHora;
-    }
+    public String getPlaca() { return placa; }
+    public void setPlaca(String placa) { this.placa = placa; }
 
-    public void setDataHora(Date dataHora) {
-        this.dataHora = dataHora;
-    }
+    public String getFormaPagamento() { return formaPagamento; }
+    public void setFormaPagamento(String formaPagamento) { this.formaPagamento = formaPagamento; }
 
-    public String getPlaca() {
-        return placa;
-    }
+    public BigDecimal getTotal() { return total; }
+    public void setTotal(BigDecimal total) { this.total = total; }
 
-    public void setPlaca(String placa) {
-        this.placa = placa;
-    }
+    public Acesso getAcesso() { return acesso; }
+    public void setAcesso(Acesso acesso) { this.acesso = acesso; }
 
-    public String getFormaPagamento() {
-        return formaPagamento;
-    }
-
-    public void setFormaPagamento(String formaPagamento) {
-        this.formaPagamento = formaPagamento;
-    }
-
-    public BigDecimal getTotal() {
-        return total;
-    }
-
-    public void setTotal(BigDecimal total) {
-        this.total = total;
-    }
-
-    public Acesso getAcesso() {
-        return acesso;
-    }
-
-    public void setAcesso(Acesso acesso) {
-        this.acesso = acesso;
-    }
-
-    public List<VendaItem> getItens() {
-        return itens;
-    }
-
-    public void setItens(List<VendaItem> itens) {
-        this.itens = itens;
-    }
-
-    // ===========================
-    // === Métodos auxiliares ===
-    // ===========================
+    public List<VendaItem> getItens() { return itens; }
+    public void setItens(List<VendaItem> itens) { this.itens = itens; }
 
     @PrePersist
     public void prePersist() {
         if (this.dataHora == null) {
             this.dataHora = new Date();
+        }
+        if (this.total == null) {
+            this.total = BigDecimal.ZERO;
         }
     }
 }

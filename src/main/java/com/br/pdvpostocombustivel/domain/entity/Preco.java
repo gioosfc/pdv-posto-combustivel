@@ -1,74 +1,41 @@
 package com.br.pdvpostocombustivel.domain.entity;
 
 import jakarta.persistence.*;
-import java.io.Serializable;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "preco")
-public class Preco implements Serializable {
+@Table(name = "precos")
+public class Preco {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "produto_id")
+    @ManyToOne
+    @JoinColumn(name = "produto_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Produto produto;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal valor;
 
-    @Temporal(TemporalType.DATE)
-    private Date dataAlteracao;
+    @Column(name = "data_alteracao")
+    private LocalDateTime dataAlteracao = LocalDateTime.now();
 
-    @Temporal(TemporalType.TIME)
-    private Date horaAlteracao;
+    // Getters e setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Preco() {}
+    public Produto getProduto() { return produto; }
+    public void setProduto(Produto produto) { this.produto = produto; }
 
-    public Preco(Produto produto, BigDecimal valor) {
-        this.produto = produto;
-        this.valor = valor;
-        this.dataAlteracao = new Date();
-        this.horaAlteracao = new Date();
-    }
+    public BigDecimal getValor() { return valor; }
+    public void setValor(BigDecimal valor) { this.valor = valor; }
 
-    // ✅ Getters e Setters
-    public Long getId() {
-        return id;
-    }
-
-    public Produto getProduto() {
-        return produto;
-    }
-
-    public void setProduto(Produto produto) {
-        this.produto = produto;
-    }
-
-    public BigDecimal getValor() {
-        return valor;
-    }
-
-    public void setValor(BigDecimal valor) {
-        this.valor = valor;
-    }
-
-    public Date getDataAlteracao() {
-        return dataAlteracao;
-    }
-
-    public void setDataAlteracao(Date dataAlteracao) {
-        this.dataAlteracao = dataAlteracao;
-    }
-
-    public Date getHoraAlteracao() {
-        return horaAlteracao;
-    }
-
-    public void setHoraAlteracao(Date horaAlteracao) {
-        this.horaAlteracao = horaAlteracao;
-    }
+    public LocalDateTime getDataAlteracao() { return dataAlteracao; }
+    public void setDataAlteracao(LocalDateTime dataAlteracao) { this.dataAlteracao = dataAlteracao; }
 }

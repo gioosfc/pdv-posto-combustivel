@@ -1,6 +1,9 @@
 package com.br.pdvpostocombustivel.domain.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -15,6 +18,7 @@ public class Custo implements Serializable {
 
     @OneToOne
     @JoinColumn(name = "produto_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Produto produto;
 
     private BigDecimal imposto;

@@ -3,15 +3,39 @@ package com.br.pdvfrontend.dto;
 import java.math.BigDecimal;
 
 public class VendaItemRequest {
-    public Long bombaId;
-    public String bombaNome;
-    public Long produtoId;
-    public BigDecimal quantidadeLitros;
 
-    public VendaItemRequest(Long bombaId, String bombaNome, Long produtoId, BigDecimal quantidadeLitros) {
+    private Long bombaId;
+    private Long produtoId;
+    private BigDecimal quantidade;
+
+    public VendaItemRequest(Long bombaId, Long produtoId, BigDecimal quantidade) {
         this.bombaId = bombaId;
-        this.bombaNome = bombaNome;
         this.produtoId = produtoId;
-        this.quantidadeLitros = quantidadeLitros;
+        this.quantidade = quantidade;
+    }
+
+    // Getters e Setters
+    public Long getBombaId() {
+        return bombaId;
+    }
+
+    public void setBombaId(Long bombaId) {
+        this.bombaId = bombaId;
+    }
+
+    public Long getProdutoId() {
+        return produtoId;
+    }
+
+    public void setProdutoId(Long produtoId) {
+        this.produtoId = produtoId;
+    }
+
+    public BigDecimal getQuantidade() {
+        return quantidade;
+    }
+
+    public void setQuantidade(BigDecimal quantidade) {
+        this.quantidade = quantidade;
     }
 }
