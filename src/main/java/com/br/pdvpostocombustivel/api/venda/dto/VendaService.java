@@ -85,4 +85,18 @@ public class VendaService {
     public List<Venda> listarVendas() {
         return vendaRepository.findAll();
     }
+
+    public List<Venda> relatorio(Date inicio, Date fim, String forma, String placa) {
+        String placaPattern = (placa == null || placa.isBlank()) ? null : "%" + placa + "%";
+        return vendaRepository.buscarRelatorio(inicio, fim, formaVaziaComoNull(forma), placaPattern);
+    }
+
+    public List<ResumoProdutoDTO> resumoProdutos(Date inicio, Date fim, String forma, String placa) {
+        String placaPattern = (placa == null || placa.isBlank()) ? null : "%" + placa + "%";
+        return vendaRepository.resumoPorProduto(inicio, fim, formaVaziaComoNull(forma), placaPattern);
+    }
+
+    private String formaVaziaComoNull(String forma) {
+        return (forma == null || forma.isBlank() || "TODAS".equalsIgnoreCase(forma)) ? null : forma;
+    }
 }

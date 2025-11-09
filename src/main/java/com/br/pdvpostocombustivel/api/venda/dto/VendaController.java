@@ -1,5 +1,6 @@
 package com.br.pdvpostocombustivel.api.venda;
 
+import com.br.pdvpostocombustivel.api.venda.dto.ResumoProdutoDTO;
 import com.br.pdvpostocombustivel.api.venda.dto.VendaRequest;
 import com.br.pdvpostocombustivel.api.venda.dto.VendaService;
 import com.br.pdvpostocombustivel.domain.entity.Venda;
@@ -17,7 +18,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -91,6 +95,72 @@ public class VendaController {
             e.printStackTrace();
             response.sendError(500, "Erro ao gerar PDF: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/relatorio")
+    public ResponseEntity<List<Venda>> relatorio(
+            @RequestParam String inicio,            // formato: yyyy-MM-dd
+            @RequestParam String fim,               // formato: yyyy-MM-dd
+            @RequestParam(required = false) String forma,
+            @RequestParam(required = false) String placa
+    ) {
+        try {
+            Date di = parseInicio(inicio);
+            Date df = parseFim(fim);
+            List<Venda> lista = vendaService.relatorio(di, df, forma, placa);
+            return ResponseEntity.ok(lista);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /** 📊 Resumo por produto no período */
+    @GetMapping("/resumo-produtos")
+    public ResponseEntity<List<ResumoProdutoDTO>> resumoProdutos(
+            @RequestParam String inicio,            // formato: yyyy-MM-dd
+            @RequestParam String fim,               // formato: yyyy-MM-dd
+            @RequestParam(required = false) String forma,
+            @RequestParam(required = false) String placa
+    ) {
+        try {
+            Date di = parseInicio(inicio);
+            Date df = parseFim(fim);
+            List<ResumoProdutoDTO> lista = vendaService.resumoProdutos(di, df, vaziar(forma), vaziar(placa));
+            return ResponseEntity.ok(lista);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /** 🧰 Utilitários locais do controller */
+    private Date parseInicio(String s) throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date d = sdf.parse(s);
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        return c.getTime();
+    }
+
+    private Date parseFim(String s) throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date d = sdf.parse(s);
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+        c.set(Calendar.HOUR_OF_DAY, 23);
+        c.set(Calendar.MINUTE, 59);
+        c.set(Calendar.SECOND, 59);
+        c.set(Calendar.MILLISECOND, 999);
+        return c.getTime();
+    }
+
+    private String vaziar(String s) {
+        return (s == null || s.isBlank() || "TODAS".equalsIgnoreCase(s)) ? null : s;
     }
 
     /** ✅ Método utilitário para gerar PDF */
