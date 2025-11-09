@@ -34,6 +34,8 @@ public class VendaService {
         Venda venda = new Venda();
         venda.setDataHora(new Date());
         venda.setItens(new ArrayList<>());
+        venda.setFormaPagamento(request.getFormaPagamento());
+        venda.setPlaca(request.getPlaca());
 
         BigDecimal totalGeral = BigDecimal.ZERO;
 
@@ -56,6 +58,8 @@ public class VendaService {
             item.setPrecoUnitario(precoUnitario);
             item.setSubtotal(subtotal);
             item.setVenda(venda);
+            item.setBombaNome(itemReq.getBombaNome());
+            item.setBombaId(itemReq.getBombaId());
 
             venda.getItens().add(item);
             totalGeral = totalGeral.add(subtotal);

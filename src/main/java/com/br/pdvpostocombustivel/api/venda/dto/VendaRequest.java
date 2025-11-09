@@ -48,6 +48,7 @@ public class VendaRequest {
         private BigDecimal quantidade;
 
         private Long bombaId; // 🔹 opcional, mas útil se você diferencia por bomba
+        private String bombaNome;
 
         // Getters e Setters
         public Long getProdutoId() {
@@ -72,6 +73,14 @@ public class VendaRequest {
 
         public void setBombaId(Long bombaId) {
             this.bombaId = bombaId;
+        }
+
+        public String getBombaNome() {
+            return bombaNome;
+        }
+
+        public void setBombaNome(String bombaNome) {
+            this.bombaNome = bombaNome;
         }
     }
 }
