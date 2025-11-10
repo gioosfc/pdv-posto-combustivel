@@ -3,7 +3,10 @@ package com.br.pdvpostocombustivel.api.venda.dto;
 import com.br.pdvpostocombustivel.api.venda.dto.VendaRequest;
 import com.br.pdvpostocombustivel.domain.entity.*;
 import com.br.pdvpostocombustivel.domain.repository.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -16,16 +19,20 @@ public class VendaService {
     private final VendaRepository vendaRepository;
     private final ProdutoRepository produtoRepository;
     private final PrecoRepository precoRepository;
+    private final EstoqueRepository estoqueRepository;
 
     public VendaService(VendaRepository vendaRepository,
                         ProdutoRepository produtoRepository,
-                        PrecoRepository precoRepository) {
+                        PrecoRepository precoRepository,
+                        EstoqueRepository estoqueRepository) {
         this.vendaRepository = vendaRepository;
         this.produtoRepository = produtoRepository;
         this.precoRepository = precoRepository;
+        this.estoqueRepository = estoqueRepository;
     }
 
     /** ✅ Cria uma nova venda com base no request */
+    @Transactional
     public Venda criarVenda(VendaRequest request) {
         if (request == null || request.getItens() == null || request.getItens().isEmpty()) {
             throw new IllegalArgumentException("A venda deve conter ao menos um item.");
@@ -45,11 +52,29 @@ public class VendaService {
 
             Preco preco = precoRepository.findTopByProdutoIdOrderByDataAlteracaoDesc(produto.getId());
             if (preco == null || preco.getValor() == null) {
-                throw new RuntimeException("Preço inválido ou não encontrado para o produto: " + produto.getNome());
+                throw new RuntimeException("Preço inválido ou não encontrado para: " + produto.getNome());
             }
 
             BigDecimal precoUnitario = preco.getValor();
             BigDecimal quantidade = itemReq.getQuantidade();
+
+            // ======= ATUALIZAÇÃO DE ESTOQUE (com lock) =======
+            Estoque estoque = estoqueRepository.findByProdutoIdForUpdate(produto.getId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Não há registro de estoque para o produto: " + produto.getNome()));
+
+            if (estoque.getQuantidade().compareTo(quantidade) < 0) {
+                throw new EstoqueInsuficienteException(String.format(
+                        "Estoque insuficiente para %s. Disponível: %s, solicitado: %s",
+                        produto.getNome(), estoque.getQuantidade(), quantidade
+                ));
+            }
+
+            estoque.setQuantidade(estoque.getQuantidade().subtract(quantidade));
+            // Se preferir explicitar o flush aqui:
+            // estoqueRepository.save(estoque);
+            // ================================================
+
             BigDecimal subtotal = precoUnitario.multiply(quantidade);
 
             VendaItem item = new VendaItem();
@@ -67,6 +92,11 @@ public class VendaService {
 
         venda.setTotal(totalGeral);
         return vendaRepository.save(venda);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public class EstoqueInsuficienteException extends RuntimeException {
+        public EstoqueInsuficienteException(String msg) { super(msg); }
     }
 
     /** ✅ Busca uma venda por ID */

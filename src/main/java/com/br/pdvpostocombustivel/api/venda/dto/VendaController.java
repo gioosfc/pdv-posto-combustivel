@@ -6,6 +6,7 @@ import com.br.pdvpostocombustivel.api.venda.dto.VendaService;
 import com.br.pdvpostocombustivel.domain.entity.Venda;
 import com.br.pdvpostocombustivel.domain.repository.VendaRepository;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,16 +41,12 @@ public class VendaController {
 
     /** ✅ Criar nova venda */
     @PostMapping
-    @Transactional
     public ResponseEntity<Venda> criarVenda(@RequestBody VendaRequest vendaRequest) {
-        try {
-            Venda criada = vendaService.criarVenda(vendaRequest);
-            return ResponseEntity.ok(criada);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().body(null);
-        }
+        Venda criada = vendaService.criarVenda(vendaRequest);
+        return ResponseEntity.ok(criada);
     }
+
+
 
     /** ✅ Listar todas as vendas */
     @GetMapping
